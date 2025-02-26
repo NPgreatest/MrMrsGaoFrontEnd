@@ -3,13 +3,11 @@ import { postChatMessage } from "../api/chatApi";
 import ChatMessage from "./ChatMessage";
 import SuggestionOptions from "./SuggestionOptions";
 import LoadingIndicator from "./LoadingIndicator";
-import VideoList from "./VideoList"; // Import VideoList component
 
-const ChatWindow = () => {
+const ChatWindow = ({ setVideoLinks }) => {  // Receive setVideoLinks from ChatPage
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [videoLinks, setVideoLinks] = useState([]); // Store video links
 
     useEffect(() => {
         const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
@@ -34,11 +32,11 @@ const ChatWindow = () => {
                     const botReply = { role: "bot", content: response.llm_response };
                     setMessages((prev) => [...prev, botReply]);
                     
-                    // Check if there are video links
+                    // Update video links in ChatPage state
                     if (response.video_links && response.video_links.length > 0) {
                         setVideoLinks(response.video_links);
                     } else {
-                        setVideoLinks([]); // Clear if no videos
+                        setVideoLinks([]); // Clear videos if no links
                     }
                 } else {
                     console.error("Invalid response format:", response);
@@ -70,39 +68,38 @@ const ChatWindow = () => {
     };
 
     return (
-        <div className="w-full max-w-7xl mx-auto p-6 rounded-3xl backdrop-blur-md bg-black/50 border border-neon-blue shadow-xl shadow-neon-blue/50">
-            <h2 className="text-3xl font-bold text-white mb-5 text-center neon-text">老高答疑室</h2>
+        <div className={`flex ${setVideoLinks ? "w-3/5" : "w-full"} max-w-7xl mx-auto p-6 rounded-3xl backdrop-blur-md bg-black/50 border border-neon-blue shadow-xl shadow-neon-blue/50 transition-all duration-300`}>
+            <div className="w-full">
+                <h2 className="text-3xl font-bold text-white mb-5 text-center neon-text">老高答疑室</h2>
 
-            {/* Chat Messages */}
-            <div className="flex flex-col space-y-4 h-[60vh] overflow-y-auto px-4">
-                {messages.map((msg, index) => (
-                    <ChatMessage key={index} message={msg} />
-                ))}
-                {isLoading && <LoadingIndicator />}
-            </div>
+                {/* Chat Messages */}
+                <div className="flex flex-col space-y-4 h-[60vh] overflow-y-auto px-4">
+                    {messages.map((msg, index) => (
+                        <ChatMessage key={index} message={msg} />
+                    ))}
+                    {isLoading && <LoadingIndicator />}
+                </div>
 
-            {/* Video List */}
-            <VideoList videoLinks={videoLinks} />
+                {/* Suggestion Options */}
+                <SuggestionOptions onSelect={handleSuggestionClick} />
 
-            {/* Suggestion Options */}
-            <SuggestionOptions onSelect={handleSuggestionClick} />
-
-            {/* Input Area */}
-            <div className="flex items-center mt-4 border-t border-neon-blue pt-4">
-                <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    className="flex-1 p-2 rounded-lg bg-black text-white border border-neon-blue focus:outline-none focus:ring focus:ring-neon-blue"
-                    placeholder="Type your message..."
-                />
-                <button
-                    onClick={handleSendMessage}
-                    className="ml-4 px-4 py-2 bg-neon-blue text-white rounded-lg hover:bg-blue-700"
-                >
-                    Send
-                </button>
+                {/* Input Area */}
+                <div className="flex items-center mt-4 border-t border-neon-blue pt-4">
+                    <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        className="flex-1 p-2 rounded-lg bg-black text-white border border-neon-blue focus:outline-none focus:ring focus:ring-neon-blue"
+                        placeholder="Type your message..."
+                    />
+                    <button
+                        onClick={handleSendMessage}
+                        className="ml-4 px-4 py-2 bg-neon-blue text-white rounded-lg hover:bg-blue-700"
+                    >
+                        Send
+                    </button>
+                </div>
             </div>
         </div>
     );
