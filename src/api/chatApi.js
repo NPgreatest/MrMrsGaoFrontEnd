@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://168.4.124.31:8000";
+const API_BASE_URL = "https://168.4.124.31";
 
 // Post a new chat message
 export const postChatMessage = async (messageData) => {
