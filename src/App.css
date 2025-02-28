@@ -1,12 +1,38 @@
+:root {
+  --background-color: #ffffff;
+  --text-color: #181818;
+  --input-bg: #f3f3f3;
+  --input-border: #ccc;
+  --button-bg: #e0e0e0;
+  --button-hover: #d0d0d0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #181818;
+    --text-color: #ffffff;
+    --input-bg: #333;
+    --input-border: #555;
+    --button-bg: #444;
+    --button-hover: #555;
+  }
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
 #root {
   width: 100%;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #181818; /* Dark background for PC layout */
+  background-color: var(--background-color);
+  overflow: hidden;
 }
-
 
 
 @keyframes logo-spin {
