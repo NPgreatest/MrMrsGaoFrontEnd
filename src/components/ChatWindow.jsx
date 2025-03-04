@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
-import { postChatMessage } from "../api/chatApi";
+import { postChatMessage, postTTSMessage } from "../api/chatApi";
 import ChatMessage from "./ChatMessage";
 import SuggestionOptions from "./SuggestionOptions";
 import LoadingIndicator from "./LoadingIndicator";
-import VideoList from "./VideoList"; // Import VideoList component
-
+import VideoList from "./VideoList";
+import VoiceBar from "./VoiceBar";
 
 const ChatWindow = () => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [videoLinks, setVideoLinks] = useState([]);
-    const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
+    const [suggestVideos, setSuggestVideos] = useState(true);
+    const [generateAudio, setGenerateAudio] = useState(true);
 
     useEffect(() => {
         const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
@@ -34,13 +34,38 @@ const ChatWindow = () => {
                 const response = await postChatMessage({ query: message });
 
                 if (response?.llm_response) {
-                    const botReply = { role: "bot", content: response.llm_response };
+                    const botReply = { role: "bot", content: response.llm_response, isGenerating: true };
                     setMessages((prev) => [...prev, botReply]);
 
-                    if (response.video_links?.length > 0) {
-                        setVideoLinks(response.video_links);
-                    } else {
-                        setVideoLinks([]);
+                    if (suggestVideos) {
+                        setVideoLinks(response.video_links?.length > 0 ? response.video_links : []);
+                    }
+
+                    if (generateAudio) {
+                        postTTSMessage(response.llm_response)
+                            .then((ttsResponse) => {
+                                if (ttsResponse) {
+                                    try {
+                                        const byteArray = new Uint8Array(ttsResponse);
+                                        const audioBlob = new Blob([byteArray], { type: "audio/wav" });
+
+                                        setMessages((prev) =>
+                                            prev.map((msg) =>
+                                                msg.content === response.llm_response
+                                                    ? { ...msg, audioBlob, isGenerating: false }
+                                                    : msg
+                                            )
+                                        );
+                                    } catch (error) {
+                                        console.error("Error processing TTS audio:", error);
+                                    }
+                                } else {
+                                    console.error("TTS response did not contain valid audio data");
+                                }
+                            })
+                            .catch((error) => {
+                                console.error("TTS request failed:", error);
+                            });
                     }
                 } else {
                     console.error("Invalid response format:", response);
@@ -67,47 +92,75 @@ const ChatWindow = () => {
         }
     };
 
-    const handleSuggestionClick = (suggestion) => {
-        setMessage(suggestion);
-    };
-
     return (
-        <div className="flex flex-col w-screen h-screen p-6 bg-[var(--background-color)] text-[var(--text-color)] overflow-hidden">
-            <h2 className="text-3xl font-bold mb-5 text-center">老高答疑室</h2>
+        <div className="flex flex-col w-screen h-screen  overflow-hidden">
 
-            {/* Chat Messages */}
-            <div className="flex flex-col flex-grow space-y-4 overflow-y-auto px-4">
+
+            <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-center flex-1 text-white">老高AI数字人</h2>
+            <div className="flex space-x-4">
+                    <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-300">建议视频</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={suggestVideos}
+                                onChange={() => setSuggestVideos(!suggestVideos)}
+                                className="sr-only peer"
+                            />
+                            <div className="w-10 h-5 bg-gray-600 rounded-full peer-checked:bg-green-500 transition"></div>
+                        </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-300">语音</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={generateAudio}
+                                onChange={() => setGenerateAudio(!generateAudio)}
+                                className="sr-only peer"
+                            />
+                            <div className="w-10 h-5 bg-gray-600 rounded-full peer-checked:bg-green-500 transition"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex flex-col flex-grow space-y-4 overflow-y-auto px-4 mt-4">
                 {messages.map((msg, index) => (
                     <ChatMessage key={index} message={msg} />
                 ))}
                 {isLoading && <LoadingIndicator />}
-                {/* Display suggested videos within the chat window */}
                 {videoLinks.length > 0 && <VideoList videoLinks={videoLinks} />}
             </div>
 
-            {/* Suggestion Options */}
-            <SuggestionOptions onSelect={handleSuggestionClick} />
+            <SuggestionOptions onSelect={setMessage} />
 
-            {/* Input Area */}
-            <div className="flex items-center mt-4 border-t border-[var(--input-border)] pt-4">
+            <div className="flex items-center mt-4 border-t border-[var(--input-border,#ccc)] pt-3">
                 <input
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className="flex-1 p-2 bg-[var(--input-bg)] text-[var(--text-color)] border border-[var(--input-border)] rounded-lg focus:outline-none focus:ring focus:ring-gray-400"
+                    className="flex-1 p-2 
+                        bg-[var(--input-bg,#fff)] 
+                        text-[var(--text-color,#000)] 
+                        border border-[var(--input-border,#ccc)] 
+                        rounded-lg focus:outline-none focus:ring focus:ring-gray-400"
                     placeholder="Type your message..."
                 />
                 <button
                     onClick={handleSendMessage}
-                    className="px-3 py-1 rounded-lg transition-colors flex-shrink-0 bg-[var(--button-bg)] text-[var(--text-color)] hover:bg-[var(--button-hover)]"
+                    className="px-3 py-1 rounded-lg transition-colors flex-shrink-0 
+                        bg-[var(--button-bg,#007bff)] 
+                        text-[var(--text-color)] hover:bg-[var(--button-hover)]"
                 >
                     Send
                 </button>
             </div>
+
         </div>
     );
-
 };
 
 export default ChatWindow;

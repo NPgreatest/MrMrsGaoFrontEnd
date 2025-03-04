@@ -26,8 +26,10 @@ a:hover {
 
 body {
   margin: 0;
-  min-width: 768px; /* Ensure it's more suited for PC */
+  /* min-width: 768px;  */
+  width: 100vw;
   min-height: 100vh;
+  overflow-x: hidden; 
   background-color: #181818;
 }
 
