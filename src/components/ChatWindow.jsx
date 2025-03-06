@@ -4,7 +4,6 @@ import ChatMessage from "./ChatMessage";
 import SuggestionOptions from "./SuggestionOptions";
 import LoadingIndicator from "./LoadingIndicator";
 import VideoList from "./VideoList";
-import VoiceBar from "./VoiceBar";
 
 const ChatWindow = () => {
     const [messages, setMessages] = useState([]);
@@ -13,8 +12,16 @@ const ChatWindow = () => {
     const [videoLinks, setVideoLinks] = useState([]);
     const [suggestVideos, setSuggestVideos] = useState(true);
     const [generateAudio, setGenerateAudio] = useState(true);
+    const [isPC, setIsPC] = useState(false);
+
 
     useEffect(() => {
+        // Detect if the device is a PC
+        const userAgent = window.navigator.userAgent;
+        const isDesktop = !/Mobi|Android|iPhone|iPad/i.test(userAgent);
+        setIsPC(isDesktop);
+
+        // Load messages from local storage
         const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
         setMessages(storedMessages);
     }, []);
@@ -93,72 +100,42 @@ const ChatWindow = () => {
     };
 
     return (
-        <div className="flex flex-col w-screen h-screen  overflow-hidden">
+        <div className={`flex flex-col w-screen h-[calc(100vh-8rem)] overflow-hidden ${isPC ? "flex items-center justify-center bg-gray-200" : ""}`}>
+            {/* Container Box for PC */}
+            {/* <NavigationBar currentPage={currentPage} setCurrentPage={setCurrentPage} /> */}
 
+            <div className={`${isPC ? "w-3/4 max-w-8xl bg-white shadow-lg rounded-3xl p-6" : "w-9/10"} flex flex-col h-full`}>
 
-            <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-center flex-1 text-white">老高AI数字人</h2>
-            <div className="flex space-x-4">
-                    <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-300">建议视频</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={suggestVideos}
-                                onChange={() => setSuggestVideos(!suggestVideos)}
-                                className="sr-only peer"
-                            />
-                            <div className="w-10 h-5 bg-gray-600 rounded-full peer-checked:bg-green-500 transition"></div>
-                        </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-300">语音</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={generateAudio}
-                                onChange={() => setGenerateAudio(!generateAudio)}
-                                className="sr-only peer"
-                            />
-                            <div className="w-10 h-5 bg-gray-600 rounded-full peer-checked:bg-green-500 transition"></div>
-                        </label>
-                    </div>
+                {/* Chat Messages */}
+                <div className="flex flex-col flex-grow space-y-4 overflow-y-auto px-4 mt-4">
+                    {messages.map((msg, index) => (
+                        <ChatMessage key={index} message={msg} />
+                    ))}
+                    {isLoading && <LoadingIndicator />}
+                    {videoLinks.length > 0 && <VideoList videoLinks={videoLinks} />}
+                </div>
+
+                {/* Suggestion Options */}
+                <SuggestionOptions onSelect={setMessage} />
+
+                {/* Input Area */}
+                <div className="flex items-center mt-4 border-t border-gray-300 pt-3">
+                    <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        className="flex-1 p-2 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-400"
+                        placeholder="Type your message..."
+                    />
+                    <button
+                        onClick={handleSendMessage}
+                        className="px-4 py-2 ml-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                    >
+                        Send
+                    </button>
                 </div>
             </div>
-
-            <div className="flex flex-col flex-grow space-y-4 overflow-y-auto px-4 mt-4">
-                {messages.map((msg, index) => (
-                    <ChatMessage key={index} message={msg} />
-                ))}
-                {isLoading && <LoadingIndicator />}
-                {videoLinks.length > 0 && <VideoList videoLinks={videoLinks} />}
-            </div>
-
-            <SuggestionOptions onSelect={setMessage} />
-
-            <div className="flex items-center mt-4 border-t border-[var(--input-border,#ccc)] pt-3">
-                <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    className="flex-1 p-2 
-                        bg-[var(--input-bg,#fff)] 
-                        text-[var(--text-color,#000)] 
-                        border border-[var(--input-border,#ccc)] 
-                        rounded-lg focus:outline-none focus:ring focus:ring-gray-400"
-                    placeholder="Type your message..."
-                />
-                <button
-                    onClick={handleSendMessage}
-                    className="px-3 py-1 rounded-lg transition-colors flex-shrink-0 
-                        bg-[var(--button-bg,#007bff)] 
-                        text-[var(--text-color)] hover:bg-[var(--button-hover)]"
-                >
-                    Send
-                </button>
-            </div>
-
         </div>
     );
 };

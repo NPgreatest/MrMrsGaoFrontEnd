@@ -29,16 +29,17 @@ const ChatMessage = ({ message }) => {
 
             <div
                 className={`p-${isMobile ? "3" : "5"} rounded-xl shadow-md transition-all duration-300 
-                    ${isUser
-                        ? "bg-neon-blue/20 border border-neon-blue text-white shadow-neon-blue/50"
-                        : "bg-neon-purple/20 border border-neon-purple text-white shadow-neon-purple/50"
-                    }`}
+                ${isUser
+                    ? "bg-neon-blue/20 border border-neon-blue text-gray-900 shadow-neon-blue/50"
+                    : "bg-neon-purple/20 border border-neon-purple text-gray-900 shadow-neon-purple/50"
+                }
+                `}
             >
                 <ReactMarkdown>{message.content}</ReactMarkdown>
 
                 {/* Show voice generation indicator */}
                 {isGenerating && !message.audioBlob && (
-                    <p className="text-gray-400 text-sm mt-2 animate-pulse">
+                    <p className="text-gray-900 shadow-neon-purple/50 mt-2  animate-pulse ">
                         🎙️ 生成老高的语音中<span className="dot-animation">...</span>
                     </p>
                 )}

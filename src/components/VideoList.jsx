@@ -7,7 +7,7 @@ const VideoList = ({ videoLinks }) => {
         <div className="flex flex-col max-w-[70%] self-start items-start">
             <p className="text-sm font-bold text-gray-300 mb-1">AI老高</p>
             <div className="p-5 rounded-xl shadow-md bg-neon-purple/20 border border-neon-purple text-white shadow-neon-purple/50">
-                <p className="mb-3 font-semibold">相关视频推荐：</p>
+                <p className="mb-3 font-semibold text-gray-900">相关视频推荐：</p>
                 
 
                 {/* Scrollable box for the remaining videos */}
