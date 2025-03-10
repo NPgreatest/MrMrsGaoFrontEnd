@@ -7,7 +7,7 @@ This project is a chatbot front-end and back-end implementation that allows user
 - Approving or rejecting memory access requests.
 - (Optional) Integrating a cryptocurrency wallet using EIP712 for approval signature.
 
-<img src="pic/WechatIMG51.jpg" alt="WechatIMG51" style="zoom:33%;" />
+<img src="pic/display.png" alt="display" style="zoom:100%;" />
 
 
 

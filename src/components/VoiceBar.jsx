@@ -95,7 +95,7 @@ const VoiceBar = ({ audioBlob }) => {
                     onClick={isPlaying ? handlePause : handlePlay}
                     className={`px-3 py-1 rounded-lg transition-colors shadow-md flex-1 
                         ${isDarkMode 
-                            ? "bg-white text-black hover:bg-gray-600 hover:text-white"  
+                            ? "bg-white text-white hover:bg-gray-600 hover:text-white"  
                             : "bg-blue-500 hover:bg-blue-600 hover:text-white text-black"
                         }`}
                 >
@@ -105,8 +105,8 @@ const VoiceBar = ({ audioBlob }) => {
                     onClick={handleDownload}
                     className={`ml-3 px-3 py-1 rounded-lg transition-colors shadow-md 
                         ${isDarkMode 
-                            ? "bg-white text-black hover:bg-gray-600 hover:text-white"  
-                            : "bg-blue-500 hover:bg-blue-600 hover:text-white text-black"
+                            ? "bg-white text-white hover:bg-gray-600 hover:text-white"  
+                            : "bg-blue-500 hover:bg-blue-600 hover:text-white text-white"
                         }`}
                 >
                     ⬇ Download
