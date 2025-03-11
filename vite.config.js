@@ -22,6 +22,6 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix if needed
       },
     },
-    allowedHosts: ['app.laogao.us'], // Allow Cloudflare domain
+    allowedHosts: ['www.laogao.us','laogao.us'], // Allow Cloudflare domain
   }
 })
